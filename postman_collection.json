@@ -1,0 +1,793 @@
+{
+  "info": {
+    "name": "CodeRank API - Complete Collection",
+    "description": "Complete API collection for CodeRank - Secure Online Code Execution Platform\n\nFeatures:\n- Multi-language code execution (Python, Java, JavaScript, C++)\n- JWT authentication with auto-token management\n- Rate limiting (USER: 10/min, PREMIUM: 100/min, ADMIN: 1000/min)\n- Submission history with pagination\n- Pattern-based security validation\n\nBase URL: http://localhost:8081/api\n\nQuick Start:\n1. Run 'Register User' to create an account (token auto-saved)\n2. Execute code samples in 'Code Execution' folder\n3. View submission history in 'Submissions' folder\n4. Test error cases in 'Error Cases' folder",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "coderank-api-collection",
+    "version": "2.0.0"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8081/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "submission_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "testuser",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "password123",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the API is running"
+      }
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "    console.log('✓ User registered successfully');",
+                  "    console.log('✓ Token saved:', jsonData.token.substring(0, 20) + '...');",
+                  "    console.log('✓ Username:', jsonData.username);",
+                  "    console.log('✓ Role:', jsonData.role);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"email\": \"{{username}}@example.com\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user account. Default role is USER with 10 requests/minute rate limit.\n\nRequest Body:\n- username: Unique username (required)\n- email: Valid email address (required)\n- password: Password (required)\n\nResponse:\n- token: JWT authentication token (24hr expiration)\n- username, email, role: User details\n\nThe token is automatically saved to the collection variable and will be used in subsequent requests."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "    console.log('✓ Login successful');",
+                  "    console.log('✓ Token saved:', jsonData.token.substring(0, 20) + '...');",
+                  "    console.log('✓ Username:', jsonData.username);",
+                  "    console.log('✓ Role:', jsonData.role);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with existing credentials and receive JWT token.\n\nRequest Body:\n- username: Your username\n- password: Your password\n\nResponse:\n- token: JWT authentication token (valid for 24 hours)\n- username, email, role: User details\n\nThe token is automatically saved and will be used in all authenticated requests."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Code Execution",
+      "item": [
+        {
+          "name": "Execute Python Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('submission_id', jsonData.submissionId);",
+                  "    console.log('✓ Code executed successfully');",
+                  "    console.log('✓ Submission ID:', jsonData.submissionId);",
+                  "    console.log('✓ Status:', jsonData.status);",
+                  "    console.log('✓ Execution time:', jsonData.executionTimeMs + 'ms');",
+                  "    console.log('✓ Output:', jsonData.output);",
+                  "    if (jsonData.errorMessage) {",
+                  "        console.log('⚠ Error:', jsonData.errorMessage);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"PYTHON\",\n  \"code\": \"print('Hello from Python!')\\nfor i in range(5):\\n    print(f'Number: {i}')\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Execute Python code and get immediate results.\n\nRequest Body:\n- language: PYTHON (required)\n- code: Python source code (max 10,000 chars)\n- input: Optional stdin input for the program\n\nResponse:\n- submissionId: Unique ID for this execution\n- status: COMPLETED, FAILED, or TIMEOUT\n- output: Program stdout\n- errorMessage: Compilation/runtime errors if any\n- executionTimeMs: Execution time in milliseconds\n\nSecurity: Code is validated for dangerous patterns (os, subprocess, socket, eval, exec, etc.)"
+          }
+        },
+        {
+          "name": "Execute Java Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('submission_id', jsonData.submissionId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"JAVA\",\n  \"code\": \"public class Main {\\n    public static void main(String[] args) {\\n        System.out.println(\\\"Hello from Java!\\\");\\n        for (int i = 0; i < 5; i++) {\\n            System.out.println(\\\"Number: \\\" + i);\\n        }\\n    }\\n}\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Execute Java code"
+          }
+        },
+        {
+          "name": "Execute JavaScript Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('submission_id', jsonData.submissionId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"JAVASCRIPT\",\n  \"code\": \"console.log('Hello from JavaScript!');\\nfor (let i = 0; i < 5; i++) {\\n    console.log(`Number: ${i}`);\\n}\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Execute JavaScript code"
+          }
+        },
+        {
+          "name": "Execute C++ Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('submission_id', jsonData.submissionId);",
+                  "    console.log('✓ C++ code compiled and executed');",
+                  "    console.log('✓ Submission ID:', jsonData.submissionId);",
+                  "    console.log('✓ Status:', jsonData.status);",
+                  "    console.log('✓ Execution time:', jsonData.executionTimeMs + 'ms');",
+                  "    if (jsonData.output) console.log('✓ Output:', jsonData.output);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"CPP\",\n  \"code\": \"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    cout << \\\"Hello from C++!\\\" << endl;\\n    for (int i = 0; i < 5; i++) {\\n        cout << \\\"Number: \\\" << i << endl;\\n    }\\n    return 0;\\n}\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Execute C++ code with G++ compiler.\n\nRequest Body:\n- language: CPP (required)\n- code: C++ source code\n- input: Optional stdin input\n\nProcess: Code is compiled with g++ and then executed.\n\nSecurity blocks:\n- #include <fstream>\n- #include <filesystem>\n- system()\n- fork()\n- popen()"
+          }
+        },
+        {
+          "name": "Execute Python with Input",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    console.log('✓ Code executed with input');",
+                  "    console.log('✓ Output:', jsonData.output);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"PYTHON\",\n  \"code\": \"name = input('Enter your name: ')\\nage = input('Enter your age: ')\\nprint(f'Hello {name}, you are {age} years old!')\",\n  \"input\": \"John\\n25\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Execute Python code with stdin input.\n\nThe 'input' field provides data to the program's stdin.\nMultiple inputs are separated by newlines (\\n).\n\nThis example reads two inputs (name and age) and prints a greeting."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Submissions",
+      "item": [
+        {
+          "name": "Get Submission by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/submissions/{{submission_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["submissions", "{{submission_id}}"]
+            },
+            "description": "Get details of a specific submission"
+          }
+        },
+        {
+          "name": "List User Submissions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    console.log('✓ Submissions retrieved');",
+                  "    console.log('  Total elements:', jsonData.totalElements);",
+                  "    console.log('  Total pages:', jsonData.totalPages);",
+                  "    console.log('  Current page:', jsonData.number);",
+                  "    console.log('  Page size:', jsonData.size);",
+                  "    console.log('\\nSubmissions:');",
+                  "    jsonData.content.forEach((sub, index) => {",
+                  "        console.log(`  ${index + 1}. ID: ${sub.submissionId}, Language: ${sub.language}, Status: ${sub.status}`);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/submissions?page=0&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["submissions"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "description": "Page number (0-based)"
+                },
+                {
+                  "key": "size",
+                  "value": "10",
+                  "description": "Items per page"
+                }
+              ]
+            },
+            "description": "Get paginated list of current user's code submissions.\n\nQuery Parameters:\n- page: Page number (0-based, default: 0)\n- size: Items per page (default: 10)\n\nSorting: Results are sorted by creation date (newest first)\n\nResponse:\n- content: Array of submission objects\n- totalElements: Total submissions count\n- totalPages: Total page count\n- pageable: Pagination details\n- first/last: Boolean flags\n\nUse this to view your submission history and track past executions."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Cases",
+      "item": [
+        {
+          "name": "Execute with Security Violation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"PYTHON\",\n  \"code\": \"import os\\nos.system('ls -la')\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Test security validation - should return 403"
+          }
+        },
+        {
+          "name": "Execute with Invalid Syntax",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('submission_id', jsonData.submissionId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"PYTHON\",\n  \"code\": \"print('Unclosed string\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Test code with syntax error - should complete with FAILED status"
+          }
+        },
+        {
+          "name": "Unauthorized Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns 401 Unauthorized', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "console.log('✓ Authentication required - 401 returned as expected');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"PYTHON\",\n  \"code\": \"print('Hello')\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Test authentication requirement by sending request without JWT token.\n\nExpected Response: 401 UNAUTHORIZED\n\nProtected endpoints require:\n- Authorization header\n- Valid JWT token format: Bearer <token>\n- Token not expired (24 hour validity)\n\nThis tests the security filter chain."
+          }
+        },
+        {
+          "name": "Invalid Language",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "console.log('✓ Validation error - 400 returned as expected');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"RUBY\",\n  \"code\": \"puts 'Hello'\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Test validation by providing unsupported language.\n\nExpected Response: 400 BAD REQUEST\n\nSupported languages: PYTHON, JAVA, JAVASCRIPT, CPP\n\nThis tests Jakarta Bean Validation on request DTOs."
+          }
+        },
+        {
+          "name": "Empty Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns 403 Forbidden (security validation)', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "console.log('✓ Empty code rejected - 403 returned');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"PYTHON\",\n  \"code\": \"   \",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Test security validation with empty/whitespace code.\n\nExpected Response: 403 FORBIDDEN\n{\n  \"error\": \"Security Violation\",\n  \"message\": \"Code cannot be empty\"\n}\n\nCodeValidator checks for empty code before execution."
+          }
+        },
+        {
+          "name": "Code Too Long",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns 403 Forbidden (code too long)', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "console.log('✓ Code length limit enforced');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"PYTHON\",\n  \"code\": \"{{$randomLoremParagraphs}}\".repeat(1000),\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Test code length validation (max 10,000 characters).\n\nExpected Response: 403 FORBIDDEN\n{\n  \"error\": \"Security Violation\",\n  \"message\": \"Code exceeds maximum length of 10000 characters\"\n}\n\nThis prevents DOS attacks via extremely long code submissions."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Advanced Examples",
+      "item": [
+        {
+          "name": "Python - Fibonacci Sequence",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"PYTHON\",\n  \"code\": \"def fibonacci(n):\\n    if n <= 1:\\n        return n\\n    return fibonacci(n-1) + fibonacci(n-2)\\n\\nfor i in range(10):\\n    print(f'F({i}) = {fibonacci(i)}')\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Calculate and display the first 10 Fibonacci numbers using recursive function."
+          }
+        },
+        {
+          "name": "Java - Bubble Sort",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"JAVA\",\n  \"code\": \"public class Main {\\n    public static void main(String[] args) {\\n        int[] arr = {64, 34, 25, 12, 22, 11, 90};\\n        System.out.println(\\\"Original array:\\\");\\n        printArray(arr);\\n        \\n        bubbleSort(arr);\\n        \\n        System.out.println(\\\"\\\\nSorted array:\\\");\\n        printArray(arr);\\n    }\\n    \\n    static void bubbleSort(int[] arr) {\\n        int n = arr.length;\\n        for (int i = 0; i < n-1; i++) {\\n            for (int j = 0; j < n-i-1; j++) {\\n                if (arr[j] > arr[j+1]) {\\n                    int temp = arr[j];\\n                    arr[j] = arr[j+1];\\n                    arr[j+1] = temp;\\n                }\\n            }\\n        }\\n    }\\n    \\n    static void printArray(int[] arr) {\\n        for (int num : arr) {\\n            System.out.print(num + \\\" \\\");\\n        }\\n    }\\n}\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Implement bubble sort algorithm in Java and display before/after arrays."
+          }
+        },
+        {
+          "name": "JavaScript - Array Operations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"JAVASCRIPT\",\n  \"code\": \"const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\\n\\nconst sum = numbers.reduce((acc, n) => acc + n, 0);\\nconst avg = sum / numbers.length;\\nconst evens = numbers.filter(n => n % 2 === 0);\\nconst squares = numbers.map(n => n * n);\\n\\nconsole.log('Numbers:', numbers);\\nconsole.log('Sum:', sum);\\nconsole.log('Average:', avg);\\nconsole.log('Even numbers:', evens);\\nconsole.log('Squares:', squares);\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Demonstrate JavaScript array methods (reduce, filter, map) with number operations."
+          }
+        },
+        {
+          "name": "C++ - Prime Numbers",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"CPP\",\n  \"code\": \"#include <iostream>\\nusing namespace std;\\n\\nbool isPrime(int n) {\\n    if (n <= 1) return false;\\n    if (n <= 3) return true;\\n    if (n % 2 == 0 || n % 3 == 0) return false;\\n    \\n    for (int i = 5; i * i <= n; i += 6) {\\n        if (n % i == 0 || n % (i + 2) == 0)\\n            return false;\\n    }\\n    return true;\\n}\\n\\nint main() {\\n    cout << \\\"Prime numbers up to 50:\\\" << endl;\\n    for (int i = 2; i <= 50; i++) {\\n        if (isPrime(i)) {\\n            cout << i << \\\" \\\";\\n        }\\n    }\\n    cout << endl;\\n    return 0;\\n}\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Find and display all prime numbers up to 50 using optimized algorithm."
+          }
+        },
+        {
+          "name": "Python - JSON Processing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"PYTHON\",\n  \"code\": \"import json\\n\\ndata = {\\n    'name': 'CodeRank',\\n    'version': '1.0',\\n    'languages': ['Python', 'Java', 'JavaScript', 'C++'],\\n    'features': {\\n        'security': True,\\n        'rate_limiting': True,\\n        'max_timeout': 10\\n    }\\n}\\n\\njson_str = json.dumps(data, indent=2)\\nprint('JSON Output:')\\nprint(json_str)\\n\\nparsed = json.loads(json_str)\\nprint('\\\\nLanguages:', ', '.join(parsed['languages']))\",\n  \"input\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["execute"]
+            },
+            "description": "Demonstrate JSON serialization/deserialization in Python (json module is allowed)."
+          }
+        }
+      ]
+    }
+  ]
+}
+
