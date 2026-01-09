@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class CodeExecutionResponse {
-    private Long submissionId;
+    private String submissionId;
     private Language language;
     private SubmissionStatus status;
     private String output;

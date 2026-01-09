@@ -1,12 +1,12 @@
 package com.coderank.api.domain;
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "code_submissions")
+@Document(collection = "code_submissions")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,43 +15,29 @@ import java.time.LocalDateTime;
 public class CodeSubmission {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private String userId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private Language language;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
     private String code;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private SubmissionStatus status = SubmissionStatus.PENDING;
 
-    @Column(columnDefinition = "TEXT")
     private String output;
 
-    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Column(name = "execution_time_ms")
     private Long executionTimeMs;
 
-    @Column(name = "memory_used_kb")
     private Long memoryUsedKb;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    @PrePersist
-    protected void onCreate() {
+    public void onCreate() {
         createdAt = LocalDateTime.now();
     }
 }
