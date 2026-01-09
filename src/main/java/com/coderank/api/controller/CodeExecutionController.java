@@ -25,7 +25,7 @@ public class CodeExecutionController {
     }
 
     @GetMapping("/submissions/{id}")
-    public ResponseEntity<CodeExecutionResponse> getSubmission(@PathVariable Long id) {
+    public ResponseEntity<CodeExecutionResponse> getSubmission(@PathVariable String id) {
         return ResponseEntity.ok(codeExecutionService.getSubmission(id));
     }
 

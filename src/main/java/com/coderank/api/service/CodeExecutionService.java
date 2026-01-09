@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
@@ -35,7 +34,6 @@ public class CodeExecutionService {
     @Autowired
     private CodeValidator codeValidator;
 
-    @Transactional
     public CodeExecutionResponse executeCode(CodeExecutionRequest request) {
         User user = getCurrentUser();
 
@@ -50,16 +48,17 @@ public class CodeExecutionService {
             .status(SubmissionStatus.PENDING)
             .build();
 
+        submission.onCreate();
         submission = submissionRepository.save(submission);
 
         // Execute asynchronously
-        final Long submissionId = submission.getId();
+        final String submissionId = submission.getId();
         CompletableFuture.runAsync(() -> executeAsync(submissionId, request));
 
         return mapToResponse(submission);
     }
 
-    private void executeAsync(Long submissionId, CodeExecutionRequest request) {
+    private void executeAsync(String submissionId, CodeExecutionRequest request) {
         CodeSubmission submission = submissionRepository.findById(submissionId).orElseThrow();
 
         try {
@@ -98,7 +97,7 @@ public class CodeExecutionService {
         submissionRepository.save(submission);
     }
 
-    public CodeExecutionResponse getSubmission(Long id) {
+    public CodeExecutionResponse getSubmission(String id) {
         User user = getCurrentUser();
         CodeSubmission submission = submissionRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Submission not found"));

@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: coderank-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: coderank
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - coderank-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/coderank --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  coderank-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coderank-app
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DB: coderank
+      JWT_SECRET: ${JWT_SECRET:-coderank-secret-key-for-jwt-token-generation-please-change-in-production}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      EXECUTION_TIMEOUT: ${EXECUTION_TIMEOUT:-10}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - coderank-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  coderank-network:
+    driver: bridge
+

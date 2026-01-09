@@ -47,6 +47,7 @@ public class AuthService {
             .enabled(true)
             .build();
 
+        user.onCreate();
         userRepository.save(user);
 
         // Auto-login after registration
