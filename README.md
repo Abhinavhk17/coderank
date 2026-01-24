@@ -1,5 +1,7 @@
 # CodeRank - Code Execution API
 
+CodeRank is a production-ready REST API platform that allows users to execute code snippets in a secure, isolated environment. Built with Spring Boot, it provides a robust solution for online code evaluation, competitive programming challenges, or educational platforms where safe code execution is needed.
+
 Secure REST API for executing Java and JavaScript code with JWT authentication, rate limiting, and MongoDB storage.
 
 ## Quick Start
