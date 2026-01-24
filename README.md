@@ -182,9 +182,6 @@ docker-compose restart
 docker exec -it coderank-mongodb mongosh coderank
 ```
 
-## License
-
-MIT
 
 
 
